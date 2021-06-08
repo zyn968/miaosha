@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/changgou-parent/pom.xml" />
+        <option value="$PROJECT_DIR$/code-template/pom.xml" />
+        <option value="$PROJECT_DIR$/itheima-rabbitmq-delay-queue/pom.xml" />
+        <option value="$PROJECT_DIR$/changgou-parent/fescar-parent/fescar-api/pom.xml" />
+        <option value="$PROJECT_DIR$/changgou-parent/changgou-service/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/changgou-parent/changgou-transaction-fescar/pom.xml" />
+        <option value="$PROJECT_DIR$/changgou-parent/fescar-parent/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

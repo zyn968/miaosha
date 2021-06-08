@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.changgou.user.dao.TbUserMapper">
+    <!--加入使用缓存-->
+    <cache type="org.mybatis.caches.ehcache.EhcacheCache">
+        <!--缓存自创建日期起至失效时的间隔时间一个小时-->
+        <property name="timeToIdleSeconds" value="3600"/>
+        <!--缓存创建以后，最后一次访问缓存的日期至失效之时的时间间隔一个小时-->
+        <property name="timeToLiveSeconds" value="3600"/>
+        <!--设置在缓存中保存的对象的最大的个数，这个按照业务进行配置-->
+        <property name="maxEntriesLocalHeap" value="1000"/>
+
+        <!--设置在磁盘中最大实体对象的个数-->
+        <property name="maxEntriesLocalDisk" value="10000000"/>
+        <!--缓存淘汰算法-->
+        <property name="memoryStoreEvictionPolicy" value="LRU"/>
+    </cache>
+
+    <select id="findOne" resultType="com.changgou.user.pojo.User" parameterType="string">
+        SELECT * from tb_user where username = #{username}
+    </select>
+
+</mapper>
