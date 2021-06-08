@@ -1,17 +1,17 @@
 # miaosha
 秒杀功能：
-
+![image](https://github.com/zyn968/miaosha/blob/master/pic/miaosha.png)
 秒杀技术实现核心思想是运用缓存减少数据库瞬间的访问压力！读取商品详细信息时运用缓存，当用户点击抢购时减少缓存中的库存数量，当库存数为0时或活动期结束时，同步到数据库。 产生的秒杀预订单也不会立刻写到数据库中，而是先写到缓存，当用户付款成功后再写入数据库。
 
 1.秒杀商品压入缓存
-
+![image](https://github.com/zyn968/miaosha/blob/master/pic/yaru.png)
 我们这里秒杀商品列表和秒杀商品详情都是从Redis中取出来的，所以我们首先要将符合参与秒杀的商品定时查询出来，并将数据存入到Redis缓存中。
 
 数据存储类型我们可以选择Hash类型
 2.多线程抢单
-
+![image](https://github.com/zyn968/miaosha/blob/master/pic/qiangdan.png)
 采用多线程下单，如果用户符合抢单资格，只需要记录用户抢单数据，存入队列，多线程从队列中进行消费即可，存入队列采用左压，多线程下单采用右取的方式。
-
+![image](https://github.com/zyn968/miaosha/blob/master/pic/qiangdan2.png)
 用户每次下单的时候，都让他们先进行排队，然后采用多线程的方式创建订单，排队我们可以采用Redis的队列实现，多线程下单我们可以采用Spring的异步实现。
 
 3.防止秒杀重复排队
@@ -19,7 +19,7 @@
 
 4.并发超卖问题的解决
 超卖问题，这里是指多人抢购同一商品的时候，多人同时判断是否有库存，如果只剩一个，则都会判断有库存，此时会导致超卖现象产生，也就是一个商品下了多个订单的现象。
-
+![image](https://github.com/zyn968/miaosha/blob/master/pic/chaomai.png)
 针对单机的情况，加锁变成同步块可以解决该问题。但是实际情况是集群服务器，一个tomcat并不能对另外的tomcat产生影响，并不能解决服务器集群情况下的超卖问题。
 思路：能够实现精准判断商品是否还有，就能够解决该问题。
 对数据库添加行级锁？的问题：
@@ -43,6 +43,7 @@ Dead Letter Exchanges（DLX）
 RabbitMQ的Queue可以配置x-dead-letter-exchange和x-dead-letter-routing-key（可选）两个参数，如果队列内出现了dead letter，则按照这两个参数重新路由转发到指定的队列。
 x-dead-letter-exchange：出现dead letter之后将dead letter重新发送到指定exchange
 x-dead-letter-routing-key：出现dead letter之后将dead letter重新按照指定的routing-key发送。
+![image](https://github.com/zyn968/miaosha/blob/master/pic/yanshi.png)
 延时队列实现订单关闭回滚库存：
 1.创建一个过期队列  Queue1
 2.接收消息的队列    Queue2
@@ -59,7 +60,7 @@ x-dead-letter-routing-key：出现dead letter之后将dead letter重新按照指
 3.此时如果没有数据，一般情况下都需要设置一个过期时间，例如：5分钟失效。（为了避免过多的KEY 存储在redis中）
 4.返回给用户，
 5.用户再次访问时，已经有KEY了。此时KEY的值是null而已，这样就可以在缓存中命中，解决了缓存穿透的问题。
-
+![image](https://github.com/zyn968/miaosha/blob/master/pic/jichuan.png)
 注意：缓存空对象会有两个问题：
 第一，空值做了缓存，意味着缓存层中存了更多的键，需要更多的内存空间 ( 如果是攻击，问题更严重 )，比较有效的方法是针对这类数据设置一个较短的过期时间，让其自动剔除。
 第二，缓存层和存储层的数据会有一段时间窗口的不一致，可能会对业务有一定影响。例如过期时间设置为 5分钟，如果此时存储层添加了这个数据，那此段时间就会出现缓存层和存储层数据的不一致，此时可以利用消息系统或者其他方式清除掉缓存层中的空对象。
@@ -74,6 +75,7 @@ Redis缓存雪崩问题解决
 数据预热
 在缓存失效应当尽量避免某一段时间，可以先进行数据预热，比如某些热门的商品。提前在上线之前，或者开放给用户使用之前，先进行loading 缓存中，这样用户使用的时候，直接从缓存中获取。要注意的是，要更加业务来进行过期时间的设置 ，尽量均匀。
 做缓存降级（二级缓存策略）
+![image](https://github.com/zyn968/miaosha/blob/master/pic/huancun.png)
 当分布式缓存失效的时候，可以采用本地缓存，本地缓存没有再查询数据库。这种方式，可以避免很多数据分布式缓存没有，就直接打到数据库的情况。
 基本的思路：通过redis缓存+mybatis的二级缓存整合ehcache来实现。EhCache 是一个纯Java的进程内缓存框架，具有快速、精干等特点，是Hibernate中默认的CacheProvider。
 
@@ -96,6 +98,7 @@ gateway的限流:
 gateway有限流作用，但还是需要nginxj：
 一般用nginx实现第一轮的并发流量抵御，再由网关对各个微服务的并发量进行抵御。
 nginx限制总的流量，放的流量还是比较大，网关保护微服务，防止雪崩。
+![image](https://github.com/zyn968/miaosha/blob/master/pic/wangguan.png)
 限流算法： 令牌桶算法
 1.所有请求在处理之前要拿到一个可用令牌
 2.根据限流大小，以一定速率往桶里加令牌
