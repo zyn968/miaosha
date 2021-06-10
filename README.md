@@ -99,6 +99,8 @@ gateway有限流作用，但还是需要nginxj：
 一般用nginx实现第一轮的并发流量抵御，再由网关对各个微服务的并发量进行抵御。
 nginx限制总的流量，放的流量还是比较大，网关保护微服务，防止雪崩。
 ![image](https://github.com/zyn968/miaosha/blob/master/pic/wangguan.png)
+![image](https://github.com/zyn968/miaosha/blob/master/pic/网关限流是对每个微服务进行限流保护nginx是对整体.png)
+
 限流算法： 令牌桶算法
 1.所有请求在处理之前要拿到一个可用令牌
 2.根据限流大小，以一定速率往桶里加令牌
